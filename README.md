@@ -1,6 +1,6 @@
 # Web Feature Calculation Benchmark
 
-This benchmark compares different implementations for calculating web events that occur within 5 minutes of email marketing events for the same user ID.
+This benchmark compares different implementations for calculating web events that occur within 5 minutes of email marketing events for the same user ID, and converting them into a feature vector. (to be used later in a machine learning model).
 
 ## Problem Description
 
@@ -10,6 +10,33 @@ Given:
 - **Web Events**: A dataset with `USER_ID` and `FIRST_EVENT_TIMESTAMP`
 
 **Goal**: For each email event, count how many web events occurred within the next 5 minutes for the same user ID.
+
+## Running the Benchmark
+
+```bash
+python benchmark.py
+```
+
+The script creates synthetic data and runs each implementation multiple times to get accurate performance measurements.
+
+## Sample Data
+
+- **Email Events**: 10,000 rows with EVENT_ID, USER_ID, and timestamps
+- **Web Events**: 50,000 rows with USER_ID and timestamps
+- **Time Window**: 5-minute window for matching events
+- **Runs**: 10 iterations per implementation for statistical significance
+
+## Conclusion
+
+Modern columnar data processing libraries like Polars represent a significant advancement over traditional row-based approaches. The combination of:
+
+- Columnar memory layout
+- Query optimization
+- Parallel execution
+- Streaming capabilities
+- Rust-based performance
+
+Makes Polars particularly well-suited for this type of time-series joining and aggregation workload. For production systems processing large datasets, the performance gains can be substantial (often 10x-100x faster than naive Pandas approaches).
 
 ## Implementation Approaches
 
@@ -98,7 +125,7 @@ graph TB
 
 Based on algorithmic complexity and modern data processing principles:
 
-### 🥇 **Winner: Polars Streaming**
+### (Best) **Winner: Polars Streaming**
 
 **Why it's fastest:**
 
@@ -109,7 +136,7 @@ Based on algorithmic complexity and modern data processing principles:
 - **Memory Efficiency**: Constant memory usage regardless of data size
 - **Modern Architecture**: Built from the ground up for performance
 
-### 🥈 **Runner-up: Polars Lazy/Eager Batched**
+### (Second Best) **Runner-up: Polars Lazy/Eager Batched**
 
 **Strengths:**
 
@@ -118,7 +145,7 @@ Based on algorithmic complexity and modern data processing principles:
 - Polars' columnar format is inherently faster than Pandas' row-based approach
 - Multi-threading built into Polars operations
 
-### 🥉 **Third: Pandas Optimized (SearchSorted)**
+### (Third Best) **Third: Pandas Optimized (SearchSorted)**
 
 **Strengths:**
 
@@ -126,9 +153,7 @@ Based on algorithmic complexity and modern data processing principles:
 - Pre-sorting eliminates redundant work
 - Much more efficient than naive approaches
 
-## Key Performance Factors
-
-### Why Polars Outperforms Pandas:
+## Why Polars Outperforms Pandas? (from internet)
 
 1. **Memory Layout**:
 
@@ -155,30 +180,3 @@ Based on algorithmic complexity and modern data processing principles:
 5. **Parallel by Default**:
    - Polars automatically uses all CPU cores
    - Pandas operations are mostly single-threaded
-
-## Running the Benchmark
-
-```bash
-python benchmark.py
-```
-
-The script creates synthetic data and runs each implementation multiple times to get accurate performance measurements.
-
-## Sample Data
-
-- **Email Events**: 10,000 rows with EVENT_ID, USER_ID, and timestamps
-- **Web Events**: 50,000 rows with USER_ID and timestamps
-- **Time Window**: 5-minute window for matching events
-- **Runs**: 10 iterations per implementation for statistical significance
-
-## Conclusion
-
-Modern columnar data processing libraries like Polars represent a significant advancement over traditional row-based approaches. The combination of:
-
-- Columnar memory layout
-- Query optimization
-- Parallel execution
-- Streaming capabilities
-- Rust-based performance
-
-Makes Polars particularly well-suited for this type of time-series joining and aggregation workload. For production systems processing large datasets, the performance gains can be substantial (often 10x-100x faster than naive Pandas approaches).
